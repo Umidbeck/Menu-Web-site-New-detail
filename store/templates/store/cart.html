@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+
+{% block title %}Your Cart{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Your Cart</h1>
+    
+    {% if cart_items %}
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                    <th>Subtotal</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in cart_items %}
+                <tr>
+                    <td>
+                        <a href="{% url 'product_detail' item.product.id %}">{{ item.product.name }}</a>
+                    </td>
+                    <td>${{ item.product.price }}</td>
+                    <td>
+                        <form action="{% url 'update_cart' item.id %}" method="post" class="d-flex align-items-center">
+                            {% csrf_token %}
+                            <input type="number" name="quantity" value="{{ item.quantity }}" min="1" class="form-control form-control-sm" style="width: 60px;">
+                            <button type="submit" class="btn btn-sm btn-outline-secondary ml-2">Update</button>
+                        </form>
+                    </td>
+                    <td>${{ item.get_cost }}</td>
+                    <td>
+                        <form action="{% url 'remove_from_cart' item.id %}" method="post">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="3" class="text-right font-weight-bold">Total:</td>
+                    <td class="font-weight-bold">${{ total }}</td>
+                    <td></td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+    <div class="d-flex justify-content-between mt-4">
+        <a href="{% url 'product_list' %}" class="btn btn-outline-secondary">Continue Shopping</a>
+        <div>
+            <form action="{% url 'clear_cart' %}" method="post" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-warning">Clear Cart</button>
+            </form>
+            <button class="btn btn-success ml-2">Checkout</button>
+        </div>
+    </div>
+    {% else %}
+    <div class="alert alert-info">
+        Your cart is empty. <a href="{% url 'product_list' %}">Go to menu</a> to add some delicious items.
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
